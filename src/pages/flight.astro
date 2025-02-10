@@ -1,0 +1,116 @@
+---
+import { getJson } from "serpapi"
+import { Icon } from 'astro-icon/components';
+
+import '../styles/global.css';
+
+const url = new URL(Astro.request.url);
+const origin = url.searchParams.get("origin") || "MAD";
+const destination = url.searchParams.get("destination") || "PRG";
+const outbound_date = url.searchParams.get("departure_date") || "2025-02-11";
+const return_date = url.searchParams.get("return_date") || "2025-02-17";
+
+const apiParameters = {
+  api_key: "473891f9fe1d46bafef7075e2b6a08fa8fe2c38a030ecd5eafff1573c9465921",
+  engine: "google_flights",
+  hl: "en",
+  gl: "us",
+  departure_id: origin,
+  arrival_id: destination,
+  outbound_date,
+  return_date,
+  currency: "USD"
+};
+
+let flightData = await new Promise((resolve, reject) => {
+  getJson(apiParameters, (json) => {
+    resolve(json);
+  });
+});
+
+const flights = [
+  ...(flightData.best_flights || []),
+  ...(flightData.other_flights || [])
+];
+
+const ordenarResultado = (orden) => {
+  switch (orden) {
+    case "mayorPrecio":
+      flights.sort((a, b) => b.price - a.price);
+      break;
+    case "menorPrecio":
+      flights.sort((a, b) => a.price - b.price);
+      break;
+    case "mayorDuracion":
+      flights.sort((a, b) => b.total_duration - a.total_duration);
+      break;
+    case "menorDuracion":
+      flights.sort((a, b) => a.total_duration - b.total_duration);
+      break;
+    case "masEscalas":
+      flights.sort((a, b) => b.flights.length - a.flights.length);
+      break;
+    case "menosEscalas":
+      flights.sort((a, b) => a.flights.length - b.flights.length);
+      break;
+    default:
+      break;
+  }
+};
+
+const criterioOrden = url.searchParams.get("ordenar");
+if (criterioOrden) {
+  ordenarResultado(criterioOrden);
+}
+
+
+---
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Resultados de Vuelos</title>
+  </head>
+  <body class="bg-gray-100 p-6">
+    <a href="/" class="text-blue-500 hover:text-blue-700">
+      <Icon name="mdi:arrow-left" class="h-6 w-6 mr-2" />
+    </a>
+
+    <select name="ordenar" id="ordenar" class="mb-6">
+      <option value="">Ordenar Por...</option>
+      <option value="mayorPrecio" selected={criterioOrden === "mayorPrecio"}>Mayor Precio</option>
+      <option value="menorPrecio" selected={criterioOrden === "menorPrecio"}>Menor Precio</option>
+      <option value="mayorDuracion" selected={criterioOrden === "mayorDuracion"}>Mayor Duración</option>
+      <option value="menorDuracion" selected={criterioOrden === "menorDuracion"}>Menor Duración</option>
+      <option value="masEscalas" selected={criterioOrden === "masEscalas"}>Más Escalas</option>
+      <option value="menosEscalas" selected={criterioOrden === "menosEscalas"}>Menos Escalas</option>
+    </select>
+
+    <h1 class="text-3xl font-bold mb-6 text-center">Resultados de Vuelos</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {flights.map((flight) => {
+        const segment = flight.flights[0];
+        return (
+          <div class="bg-white rounded shadow p-4 hover:shadow-lg transition duration-300">
+            <img src={flight.airline_logo} alt={segment.airline} class="h-12 mb-2" />
+            <h2 class="text-xl font-bold mb-2">
+              {segment.airline} - {segment.flight_number}
+            </h2>
+            <p class="text-gray-700">
+              <strong>Salida:</strong> {segment.departure_airport.name} ({segment.departure_airport.id})<br />
+              {segment.departure_airport.time}
+            </p>
+            <p class="text-gray-700 mt-2">
+              <strong>Llegada:</strong> {segment.arrival_airport.name} ({segment.arrival_airport.id})<br />
+              {segment.arrival_airport.time}
+            </p>
+            <p class="mt-2 font-bold">Precio: ${flight.price}</p>
+            <p class="text-gray-700 mt-2 font-bold">
+              Duración total: {Math.floor(flight.total_duration / 60)} horas {flight.total_duration % 60} minutos
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  </body>
+</html>
