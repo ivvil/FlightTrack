@@ -73,55 +73,62 @@ const directFlights = flights.filter((flight) => flight.flights.length === 1);
     <meta charset="UTF-8" />
     <title>Resultados de Vuelos</title>
   </head>
-  <body class="bg-gray-100 p-6">
-    <a href="/" class="text-blue-500 hover:text-blue-700">
-      <Icon name="mdi:arrow-left" class="h-6 w-6 mr-2" />
-    </a>
+  <body class="min-h-screen bg-gray-50 py-10">
+    <div class="max-w-7xl mx-auto px-4">
+      <a href="/" class="flex items-center text-blue-500 hover:text-blue-700 mb-6">
+        <Icon name="mdi:arrow-left" class="h-6 w-6 mr-2" />
+        Volver
+      </a>
 
-    <!-- Formulario que incluye los parámetros actuales y el selector de ordenar -->
-    <form method="GET" action="/flight" class="mb-6">
-      <input type="hidden" name="origin" value={origin} />
-      <input type="hidden" name="destination" value={destination} />
-      <input type="hidden" name="departure_date" value={outbound_date} />
-      <input type="hidden" name="return_date" value={return_date} />
-      <label for="ordenar" class="mr-2">Ordenar por:</label>
-      <select name="ordenar" id="ordenar" onchange="this.form.submit()">
-        <option value="">Selecciona...</option>
-        <option value="mayorPrecio" selected={criterioOrden === "mayorPrecio"}>Mayor Precio</option>
-        <option value="menorPrecio" selected={criterioOrden === "menorPrecio"}>Menor Precio</option>
-        <option value="mayorDuracion" selected={criterioOrden === "mayorDuracion"}>Mayor Duración</option>
-        <option value="menorDuracion" selected={criterioOrden === "menorDuracion"}>Menor Duración</option>
-        <option value="masEscalas" selected={criterioOrden === "masEscalas"}>Más Escalas</option>
-        <option value="menosEscalas" selected={criterioOrden === "menosEscalas"}>Menos Escalas</option>
-      </select>
-    </form>
+      <!-- Formulario con estilos -->
+      <div class="mb-8">
+        <form method="GET" action="/flight" class="flex flex-wrap items-center gap-4">
+          <input type="hidden" name="origin" value={origin} />
+          <input type="hidden" name="destination" value={destination} />
+          <input type="hidden" name="departure_date" value={outbound_date} />
+          <input type="hidden" name="return_date" value={return_date} />
+          <label for="ordenar" class="text-gray-700 font-medium">Ordenar por:</label>
+          <select name="ordenar" id="ordenar" onchange="this.form.submit()" class="border border-gray-300 rounded-md p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Selecciona...</option>
+            <option value="mayorPrecio" selected={criterioOrden === "mayorPrecio"}>Mayor Precio</option>
+            <option value="menorPrecio" selected={criterioOrden === "menorPrecio"}>Menor Precio</option>
+            <option value="mayorDuracion" selected={criterioOrden === "mayorDuracion"}>Mayor Duración</option>
+            <option value="menorDuracion" selected={criterioOrden === "menorDuracion"}>Menor Duración</option>
+            <option value="masEscalas" selected={criterioOrden === "masEscalas"}>Más Escalas</option>
+            <option value="menosEscalas" selected={criterioOrden === "menosEscalas"}>Menos Escalas</option>
+          </select>
+        </form>
+      </div>
 
-    <h1 class="text-3xl font-bold mb-6 text-center">Resultados de Vuelos Directos</h1>
+      <h1 class="text-4xl font-bold text-gray-800 mb-10 text-center">Resultados de Vuelos Directos</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {directFlights.map((flight) => {
-        const segment = flight.flights[0];
-        return (
-          <div class="bg-white rounded shadow p-4 hover:shadow-lg transition duration-300">
-            <img src={flight.airline_logo} alt={segment.airline} class="h-12 mb-2" />
-            <h2 class="text-xl font-bold mb-2">
-              {segment.airline} - {segment.flight_number}
-            </h2>
-            <p class="text-gray-700">
-              <strong>Salida:</strong> {segment.departure_airport.name} ({segment.departure_airport.id})<br />
-              {segment.departure_airport.time}
-            </p>
-            <p class="text-gray-700 mt-2">
-              <strong>Llegada:</strong> {segment.arrival_airport.name} ({segment.arrival_airport.id})<br />
-              {segment.arrival_airport.time}
-            </p>
-            <p class="mt-2 font-bold">Precio: ${flight.price}</p>
-            <p class="text-gray-700 mt-2 font-bold">
-              Duración total: {Math.floor(flight.total_duration / 60)} horas {flight.total_duration % 60} minutos
-            </p>
-          </div>
-        );
-      })}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {directFlights.map((flight) => {
+          const segment = flight.flights[0];
+          return (
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl">
+              <img src={flight.airline_logo} alt={segment.airline} class="h-32 w-full object-contain p-4 bg-gray-100" />
+              <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                  {segment.airline} - {segment.flight_number}
+                </h2>
+                <p class="text-gray-700 text-sm mb-1">
+                  <span class="font-medium">Salida:</span> {segment.departure_airport.name} ({segment.departure_airport.id})<br />
+                  <span class="text-gray-500">{segment.departure_airport.time}</span>
+                </p>
+                <p class="text-gray-700 text-sm mb-1">
+                  <span class="font-medium">Llegada:</span> {segment.arrival_airport.name} ({segment.arrival_airport.id})<br />
+                  <span class="text-gray-500">{segment.arrival_airport.time}</span>
+                </p>
+                <p class="mt-3 text-lg font-bold text-blue-600">Precio: ${flight.price}</p>
+                <p class="mt-1 text-sm text-gray-600">
+                  Duración total: {Math.floor(flight.total_duration / 60)}h {flight.total_duration % 60}m
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   </body>
 </html>
