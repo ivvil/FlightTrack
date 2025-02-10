@@ -1,4 +1,5 @@
 ---
+export const prerender = false; 
 import { getJson } from "serpapi"
 import { Icon } from 'astro-icon/components';
 
@@ -63,8 +64,10 @@ if (criterioOrden) {
   ordenarResultado(criterioOrden);
 }
 
-
+// Filtra solo los vuelos directos sin escalas
+const directFlights = flights.filter((flight) => flight.flights.length === 1);
 ---
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -75,20 +78,28 @@ if (criterioOrden) {
       <Icon name="mdi:arrow-left" class="h-6 w-6 mr-2" />
     </a>
 
-    <select name="ordenar" id="ordenar" class="mb-6">
-      <option value="">Ordenar Por...</option>
-      <option value="mayorPrecio" selected={criterioOrden === "mayorPrecio"}>Mayor Precio</option>
-      <option value="menorPrecio" selected={criterioOrden === "menorPrecio"}>Menor Precio</option>
-      <option value="mayorDuracion" selected={criterioOrden === "mayorDuracion"}>Mayor Duración</option>
-      <option value="menorDuracion" selected={criterioOrden === "menorDuracion"}>Menor Duración</option>
-      <option value="masEscalas" selected={criterioOrden === "masEscalas"}>Más Escalas</option>
-      <option value="menosEscalas" selected={criterioOrden === "menosEscalas"}>Menos Escalas</option>
-    </select>
+    <!-- Formulario que incluye los parámetros actuales y el selector de ordenar -->
+    <form method="GET" action="/flight" class="mb-6">
+      <input type="hidden" name="origin" value={origin} />
+      <input type="hidden" name="destination" value={destination} />
+      <input type="hidden" name="departure_date" value={outbound_date} />
+      <input type="hidden" name="return_date" value={return_date} />
+      <label for="ordenar" class="mr-2">Ordenar por:</label>
+      <select name="ordenar" id="ordenar" onchange="this.form.submit()">
+        <option value="">Selecciona...</option>
+        <option value="mayorPrecio" selected={criterioOrden === "mayorPrecio"}>Mayor Precio</option>
+        <option value="menorPrecio" selected={criterioOrden === "menorPrecio"}>Menor Precio</option>
+        <option value="mayorDuracion" selected={criterioOrden === "mayorDuracion"}>Mayor Duración</option>
+        <option value="menorDuracion" selected={criterioOrden === "menorDuracion"}>Menor Duración</option>
+        <option value="masEscalas" selected={criterioOrden === "masEscalas"}>Más Escalas</option>
+        <option value="menosEscalas" selected={criterioOrden === "menosEscalas"}>Menos Escalas</option>
+      </select>
+    </form>
 
-    <h1 class="text-3xl font-bold mb-6 text-center">Resultados de Vuelos</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center">Resultados de Vuelos Directos</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {flights.map((flight) => {
+      {directFlights.map((flight) => {
         const segment = flight.flights[0];
         return (
           <div class="bg-white rounded shadow p-4 hover:shadow-lg transition duration-300">
