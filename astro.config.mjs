@@ -16,11 +16,12 @@ export default defineConfig({
   },
   output: 'server',
   adapter: vercel(),
-  // env: {
-  // schema: {
-  // 	AIRPORT_DATA_API_KEY: envField.string({ context: "client", access: "public" }),
-  // 	},
-  // },		  
+  env: {
+  schema: {
+	AIRPORT_DATA_API_KEY: envField.string({ context: "client", access: "public" }),
+	FLIGHT_DATA_API_KEY: envField.string({ context: "client", access: "public" }),
+	},
+  },		  
 
   integrations: [icon(), svelte()]
 });

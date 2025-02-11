@@ -3,6 +3,7 @@ export const prerender = false;
 import { getJson } from "serpapi"
 import { Icon } from 'astro-icon/components';
 import FlightMap from "../components/FlightMap.svelte";
+import DirectFlight from "../components/DirectFlight.astro";
 
 import '../styles/global.css';
 
@@ -13,7 +14,7 @@ const outbound_date = url.searchParams.get("departure_date") || "2025-02-11";
 const return_date = url.searchParams.get("return_date") || "2025-02-17";
 
 const apiParameters = {
-  api_key: "473891f9fe1d46bafef7075e2b6a08fa8fe2c38a030ecd5eafff1573c9465921",
+  api_key: import.meta.env.FLIGHT_DATA_API_KEY,
   engine: "google_flights",
   hl: "en",
   gl: "us",
@@ -67,6 +68,7 @@ if (criterioOrden) {
 
 // Filtra solo los vuelos directos sin escalas
 const directFlights = flights.filter((flight) => flight.flights.length === 1);
+const layoverFlights = flights.filter((flight) => flight.flights.length > 1);
 ---
 
 <html lang="es">
@@ -101,36 +103,28 @@ const directFlights = flights.filter((flight) => flight.flights.length === 1);
         </form>
       </div>
 
-      <h1 class="text-4xl font-bold text-gray-800 mb-10 text-center">Resultados de Vuelos Directos</h1>
+      <h1 class="text-4xl font-bold text-gray-800 mb-10 text-center">Resultados de Vuelos</h1>
 
 	  <FlightMap client:load client:only origin="MAD" destination="PRG" apiKey={import.meta.env.AIRPORT_DATA_API_KEY} />
 
+	  <h2 class="text-2xl font-bold text-gray-800 mb-10 text-center">Vuelos directos:</h2>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {directFlights.map((flight) => {
-          const segment = flight.flights[0];
+          {directFlights.map((flight) => {
           return (
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl">
-              <img src={flight.airline_logo} alt={segment.airline} class="h-32 w-full object-contain p-4 bg-gray-100" />
-              <div class="p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                  {segment.airline} - {segment.flight_number}
-                </h2>
-                <p class="text-gray-700 text-sm mb-1">
-                  <span class="font-medium">Salida:</span> {segment.departure_airport.name} ({segment.departure_airport.id})<br />
-                  <span class="text-gray-500">{segment.departure_airport.time}</span>
-                </p>
-                <p class="text-gray-700 text-sm mb-1">
-                  <span class="font-medium">Llegada:</span> {segment.arrival_airport.name} ({segment.arrival_airport.id})<br />
-                  <span class="text-gray-500">{segment.arrival_airport.time}</span>
-                </p>
-                <p class="mt-3 text-lg font-bold text-blue-600">Precio: ${flight.price}</p>
-                <p class="mt-1 text-sm text-gray-600">
-                  Duración total: {Math.floor(flight.total_duration / 60)}h {flight.total_duration % 60}m
-                </p>
-              </div>
-            </div>
-          );
-        })}
+		  <DirectFlight flight={flight} />
+			);
+			})}
+      </div>
+
+	  <h2 class="text-2xl font-bold text-gray-800 mb-10 text-center">Vuelos con escalas:</h2>
+
+	  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {layoverFlights.map((flight) => {
+          return (
+          <DirectFlight flight={flight} />
+			);
+			})}
       </div>
     </div>
   </body>
