@@ -2,6 +2,7 @@
 export const prerender = false; 
 import { getJson } from "serpapi"
 import { Icon } from 'astro-icon/components';
+import FlightMap from "../components/FlightMap.svelte";
 
 import '../styles/global.css';
 
@@ -101,6 +102,8 @@ const directFlights = flights.filter((flight) => flight.flights.length === 1);
       </div>
 
       <h1 class="text-4xl font-bold text-gray-800 mb-10 text-center">Resultados de Vuelos Directos</h1>
+
+	  <FlightMap client:load client:only origin="MAD" destination="PRG" apiKey={import.meta.env.AIRPORT_DATA_API_KEY} />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {directFlights.map((flight) => {
