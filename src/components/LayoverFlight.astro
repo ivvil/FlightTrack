@@ -1,0 +1,14 @@
+---
+const { flight } = Astro.props;
+const segment = flight.flights[0];
+const flight_name = flight.flights.map((part) => part.flight_number).join(" - ");
+---
+
+<li class="flex justify-between gap-x-6 py-5">
+	<div class="flex min-w-0 gap-x-4">
+		<img src={flight.airline_logo} alt={segment.airline} class="size-20 flex-none object-contain p-4 bg-gray-100" loading="lazy" />
+		<div class="min-w-0 flex-auto">
+			<p class="text-sm/6 font-semibold text-gray-900">{flight_name}</p>
+		</div>
+	</div>
+</li>

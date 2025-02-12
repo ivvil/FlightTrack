@@ -10,12 +10,12 @@ const segment = flight.flights[0];
             {segment.airline} - {segment.flight_number}
         </h2>
         <p class="text-gray-700 text-sm mb-1">
-            <span class="font-medium">Salida:</span> {segment.departure_airport.name} ({segment.departure_airport.id})<br />
-            <span class="text-gray-500">{segment.departure_airport.time}</span>
+            <span class="font-medium">Salida:</span> {segment.departure_airport.time} ({segment.departure_airport.id})<br />
+            <span class="text-gray-500">{segment.departure_airport.name}</span>
         </p>
         <p class="text-gray-700 text-sm mb-1">
-            <span class="font-medium">Llegada:</span> {segment.arrival_airport.name} ({segment.arrival_airport.id})<br />
-            <span class="text-gray-500">{segment.arrival_airport.time}</span>
+            <span class="font-medium">Llegada:</span> {segment.arrival_airport.time} ({segment.arrival_airport.id})<br />
+            <span class="text-gray-500">{segment.arrival_airport.name}</span>
         </p>
         <p class="mt-3 text-lg font-bold text-blue-600">Precio: ${flight.price}</p>
         <p class="mt-1 text-sm text-gray-600">
